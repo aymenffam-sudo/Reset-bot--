@@ -257,7 +257,7 @@ async def cmd_logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# /start
+# /start (fluorite logic)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def cmd_fluorite(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await require_login(update):
@@ -358,7 +358,7 @@ async def cmd_listaccounts(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Main
+# Main (Fixed for Python 3.13)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def main():
     global telethon_client
@@ -370,10 +370,10 @@ async def main():
     telethon_client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
     await telethon_client.connect()
     if not await telethon_client.is_user_authorized():
-        logger.error("❌ Telethon session not found! Run setup_session.py first.")
+        logger.error("❌ Telethon session not found!")
         return
 
-    logger.info(f"✅ Child bot ready | bot started")
+    logger.info(f"✅ Child bot ready")
 
     app = Application.builder().token(BOT_TOKEN).build()
 
@@ -391,16 +391,18 @@ async def main():
     app.add_handler(CommandHandler("removeaccount", cmd_removeaccount))
     app.add_handler(CommandHandler("listaccounts",  cmd_listaccounts))
 
-    async with app:
-        await app.initialize()
-        await app.start()
-        await app.updater.start_polling(drop_pending_updates=True)
+    # --- الإصلاح التقني هنا ---
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling(drop_pending_updates=True)
+    
+    # الحفاظ على التشغيل
+    try:
         await asyncio.Event().wait()
+    finally:
         await app.updater.stop()
         await app.stop()
-
-    await telethon_client.disconnect()
-
+        await telethon_client.disconnect()
 
 if __name__ == "__main__":
     try:
